@@ -1,0 +1,71 @@
+spotify:
+  client-id: "280f9eb7b38d4c50a4a3cdf4c55a0c30"
+  client-secret: "2bcf184cc69c44059621066d2e9b42d2"
+  redirect-uri: "https://ea922d514252.ngrok-free.app/callback" # Must end with a /callback like in the Spotify App
+  redirect-uri-port: 8080
+  scopes:
+    - "user-read-currently-playing"
+    - "user-read-playback-state"
+    - "user-modify-playback-state"
+    - "user-read-private"
+
+aliases:
+  - "spotify"
+  - "spotifylink"
+  - "mcspotifylink"
+
+database:
+  type: "JSON" # MYSQL, H2, JSON
+
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "coma112"
+    username: "root"
+    password: ""
+
+toast:
+  enabled: true
+  message: "&f&lPLAYING &8» &a{name}" # You can use the {author} tag too, but expect it to be long ash.
+  material: "MUSIC_DISC_CAT"
+
+gui:
+  track-item:
+    material: "MUSIC_DISC_CAT"
+    name: "&#39fc03{name} &7- &#39fc03{author}"
+    lore:
+      - ""
+      - " &8&l| &7Length &8» &#39fc03{length}"
+      - ""
+      - " &8&l| &7ᴄʟɪᴄᴋ &8» &fᴘʟᴀʏ"
+      - ""
+  playlist-item:
+    material: "JUKEBOX"
+    name: "&#39fc03{name} &8- &8(&#39fc03{count}&8)"
+    lore:
+      - ""
+      - " &8&l| &7ᴄʟɪᴄᴋ &8» &fᴏᴘᴇɴ"
+      - ""
+
+web-errors:
+  spotify-error: "Spotify Error: {error}"
+  no-code: "Missing auth code! Check your Spotify Developer Dashboard!"
+  no-state: "Missing state parameter! Check your Spotify Developer Dashboard!"
+  no-player: "No player found online!"
+  invalid-player: "Invalid player ID"
+
+placeholders:
+  true: "&a☑"
+  false: "&c☒"
+
+songs-timestamp:
+  show-enabled: true # It will appear in the actionbar, if it's disabled then you can still use it as a placeholder!
+  character: "|"
+  passed: "&a"
+  remaining: "&7"
+  playing: "&a▶"
+  pause: "&c⏸"
+  length: 60 # Number of characters to be shown
+  actionbar: "{timestamp} &a{passedLength}&7/&a{remainingLength} &8&l| &#39fc03{song} &7● &#39fc03{author} &8&l| {state}"
+
+

@@ -1,0 +1,4 @@
+com.github.Anon8281.universalScheduler:com.mongenscave.mcspotifylink.universalScheduler
+dev.dejvokep.boostedyaml:com.mongenscave.mcspotifylink.boostedyaml
+com.google.gson:com.mongenscave.mcspotifylink.gson
+org.apache.http:com.mongenscave.mcspotifylink.http

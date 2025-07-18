@@ -1,0 +1,145 @@
+navigation-menu:
+  title: "&0&lNAVIGATION MENU"
+  size: 27
+  items:
+    playlist-item:
+      slot: 12
+      material: "MUSIC_DISC_CAT"
+      name: "&#39fc03&lMY PLAYLISTS"
+      lore:
+        - ""
+        - " &8&l| &7See your playlists"
+        - ""
+        - " &8&l| &7ᴄʟɪᴄᴋ &8» &fᴏᴘᴇɴ"
+        - ""
+    controls-item:
+      slot: 14
+      material: "END_CRYSTAL"
+      name: "&d&lCONTROLS"
+      lore:
+        - ""
+        - " &8&l| &7Control your playlist!"
+        - ""
+        - " &8&l| &7ᴄʟɪᴄᴋ &8» &fᴏᴘᴇɴ"
+        - ""
+    border:
+      slot: "border"
+      material: "LIME_STAINED_GLASS_PANE"
+      name: " "
+
+playlist-menu:
+  title: "&0&lMY PLAYLISTS"
+  size: 54
+  items:
+    back:
+      material: "ARROW"
+      slot: 45
+      name: "&c&lBACK"
+      lore:
+        - ""
+        - " &8&l| &7You can go back!"
+        - ""
+        - " &8&l| &7ᴄʟɪᴄᴋ &8» &fʙᴀᴄᴋ"
+        - ""
+    forward:
+      material: "ARROW"
+      slot: 53
+      name: "&a&lFORWARD"
+      lore:
+        - ""
+        - " &8&l| &7You can go forward!"
+        - ""
+        - " &8&l| &7ᴄʟɪᴄᴋ &8» &fꜰᴏʀᴡᴀʀᴅ"
+        - ""
+    border:
+      slot: "border"
+      material: "LIME_STAINED_GLASS_PANE"
+      name: " "
+
+tracks-menu:
+  title: "&#39fc03{playlist} &7- &0&lTRACKS"
+  size: 54
+  items:
+    back:
+      material: "ARROW"
+      slot: 45
+      name: "&c&lBACK"
+      lore:
+        - ""
+        - " &8&l| &7You can go back!"
+        - ""
+        - " &8&l| &7ᴄʟɪᴄᴋ &8» &fʙᴀᴄᴋ"
+        - ""
+      forward:
+        material: "ARROW"
+        slot: 53
+        name: "&a&lFORWARD"
+        lore:
+          - ""
+          - " &8&l| &7You can go forward!"
+          - ""
+          - " &8&l| &7ᴄʟɪᴄᴋ &8» &fꜰᴏʀᴡᴀʀᴅ"
+          - ""
+    border:
+      slot: "border"
+      material: "LIME_STAINED_GLASS_PANE"
+      name: " "
+
+controls-menu:
+  title: "&0&lCONTROLS"
+  size: 27
+  items:
+    play-item:
+      slot: 10
+      material: "SLIME_BALL"
+      name: "&a&lPLAY"
+      lore:
+        - ""
+        - " &8&l| &7Plays the music!"
+        - ""
+        - " &8&l| &7ᴄʟɪᴄᴋ &8» &fᴘʟᴀʏ"
+        - ""
+    pause-item:
+      slot: 12
+      material: "BARRIER"
+      name: "&c&lPAUSE"
+      lore:
+        - ""
+        - " &8&l| &7Pauses the music!"
+        - ""
+        - " &8&l| &7ᴄʟɪᴄᴋ &8» &fᴘᴀᴜꜱᴇ"
+        - ""
+    previous-item:
+      slot: 14
+      material: "ARROW"
+      name: "&e&lPREVIOUS TRACK"
+      lore:
+        - ""
+        - " &8&l| &7Goes to the previous track!"
+        - ""
+        - " &8&l| &7ᴄʟɪᴄᴋ &8» &fᴘʀᴇᴠɪᴏᴜꜱ"
+        - ""
+    next-item:
+      slot: 16
+      material: "ARROW"
+      name: "&b&lNEXT TRACK"
+      lore:
+        - ""
+        - " &8&l| &7Goes to the next track!"
+        - ""
+        - " &8&l| &7ᴄʟɪᴄᴋ &8» &fɴᴇxᴛ"
+        - ""
+    back:
+      material: "ARROW"
+      slot: 18
+      name: "&c&lBACK"
+      lore:
+        - ""
+        - " &8&l| &7You can go back!"
+        - ""
+        - " &8&l| &7ᴄʟɪᴄᴋ &8» &fʙᴀᴄᴋ"
+        - ""
+    border:
+      slot: "border"
+      material: "LIME_STAINED_GLASS_PANE"
+      name: " "

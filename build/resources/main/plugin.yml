@@ -1,0 +1,5 @@
+name: mc-SpotifyLink
+version: '1.0.0'
+main: com.mongenscave.mcspotifylink.McSpotifyLink
+api-version: '1.21'
+authors: [ coma112 ]
