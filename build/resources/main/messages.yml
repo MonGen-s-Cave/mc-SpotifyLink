@@ -48,3 +48,6 @@ messages:
     - ""
     - "&8&l&m---------------------------------------------"
     - ""
+  invalid-url: "%prefix% &cInvalid Spotify URL!"
+  failed-cover: "%prefix% &cFailed to get the cover from the track."
+  not-enough-space: "%prefix% &cNot enough space in your inventory!"

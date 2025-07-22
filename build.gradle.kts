@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.mongenscave"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -36,6 +36,7 @@ dependencies {
     zap("com.zaxxer:HikariCP:6.2.1")
     zap("com.google.code.gson:gson:2.10.1")
     zap("org.apache.httpcomponents:httpclient:4.5.14")
+    zap("org.bstats:bstats-bukkit:3.0.2")
 }
 
 java {
@@ -58,4 +59,5 @@ zapper {
     relocate("dev.dejvokep.boostedyaml", "boostedyaml")
     relocate("com.google.gson", "gson")
     relocate("org.apache.http", "http")
+    relocate("org.bstats", "bstats")
 }

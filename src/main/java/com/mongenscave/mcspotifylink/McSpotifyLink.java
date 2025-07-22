@@ -13,6 +13,7 @@ import com.mongenscave.mcspotifylink.listeners.SpotifyListener;
 import com.mongenscave.mcspotifylink.manager.SpotifyManager;
 import com.mongenscave.mcspotifylink.manager.TimestampManager;
 import com.mongenscave.mcspotifylink.server.WebServer;
+import com.mongenscave.mcspotifylink.update.UpdateChecker;
 import com.mongenscave.mcspotifylink.utils.LoggerUtils;
 import com.mongenscave.mcspotifylink.utils.RegisterUtils;
 import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
@@ -20,6 +21,7 @@ import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import lombok.Getter;
+import org.bstats.bukkit.Metrics;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.zapper.ZapperJavaPlugin;
@@ -37,6 +39,7 @@ public final class McSpotifyLink extends ZapperJavaPlugin {
     @Getter WebServer webServer;
     @Getter SpotifyManager spotifyManager;
     @Getter TimestampManager timestampManager;
+    @Getter UpdateChecker updateChecker;
 
     private Config config;
 
@@ -63,6 +66,9 @@ public final class McSpotifyLink extends ZapperJavaPlugin {
         RegisterUtils.startUpdateTask();
         RegisterUtils.registerCommands();
         PlaceholderAPI.registerHook();
+
+        new Metrics(this, 26557);
+        updateChecker = new UpdateChecker(8155);
     }
 
 

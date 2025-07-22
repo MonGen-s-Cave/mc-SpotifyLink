@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class WebServer {
-    private static final McSpotifyLink plugin = McSpotifyLink.getInstance();
     private HttpServer server;
 
     public void start() {

@@ -1,7 +1,31 @@
+#
+##################################################
+# HOW TO CREATE SPOTIFY APP?
+#
+# 1. Go to this website -> https://developer.spotify.com/dashboard
+# 2. Click on "Create app" in the top left corner
+# 3. Fill out -> App name, App description
+# 4. You'll need a HTTP server with a link, paste it in the "Redirect URIs" and end it with a "/callback" example: https://example.org/callback
+# 5. Select "Web API" @ the "Which API/SDKs are you planning to use?"
+# 6. Check "I understand and agree with Spotify's Developer Terms of Service and Design Guidelines"
+
+# NOTE
+# The plugin first will only detect the owner of the App BECAUSE it's in the developer status, to get out follow the instructions below
+#
+# 1. Go to your App
+# 2. You'll see an App Status at the top, click on the little "i" letter on the right
+# 3. The link will drop you here -> https://developer.spotify.com/documentation/web-api/concepts/quota-modes
+# 4. You'll see a section like -> "Quota Extension Request for New Potential Partners"
+# 5. Fill out the form, if you are handy you can photoshop pictures since Spotify made their API REALLY restrict, sadly...
+# 6. The form will take about 1-2 days, if you are accepted your players will be able to use the plugin freely!
+#
+##################################################
+#
+
 spotify:
-  client-id: "280f9eb7b38d4c50a4a3cdf4c55a0c30"
-  client-secret: "2bcf184cc69c44059621066d2e9b42d2"
-  redirect-uri: "https://ea922d514252.ngrok-free.app/callback" # Must end with a /callback like in the Spotify App
+  client-id: "spotify-client-id"
+  client-secret: "spotify-client-secret"
+  redirect-uri: "https://your-link/callback" # Must end with a /callback like in the Spotify App
   redirect-uri-port: 8080
   scopes:
     - "user-read-currently-playing"

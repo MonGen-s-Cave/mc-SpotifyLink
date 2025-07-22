@@ -24,7 +24,13 @@ public enum MessageKeys {
     CONTROL("messages.control"),
     CONNECTED("messages.connected"),
 
-    ERROR("messages.error");
+    ERROR("messages.error"),
+
+    INVALID_URL("messages.invalid-url"),
+    FAILED_COVER("messages.failed-cover"),
+    NOT_ENOUGH_SPACE("messages.not-enough-space"),
+
+    UPDATE_NOTIFY("messages.update-notify");
 
     private static final Config language = McSpotifyLink.getInstance().getLanguage();
     private final String path;

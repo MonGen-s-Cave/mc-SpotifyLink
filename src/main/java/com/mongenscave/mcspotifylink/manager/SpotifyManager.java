@@ -11,6 +11,7 @@ import com.mongenscave.mcspotifylink.interfaces.HttpRequestFactory;
 import com.mongenscave.mcspotifylink.model.CurrentTrack;
 import com.mongenscave.mcspotifylink.data.spotify.SpotifyUser;
 import com.mongenscave.mcspotifylink.processor.MessageProcessor;
+import com.mongenscave.mcspotifylink.render.SpotifyCoverMapRenderer;
 import com.mongenscave.mcspotifylink.utils.LoggerUtils;
 import com.mongenscave.mcspotifylink.utils.PlayerUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -23,10 +24,18 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.map.MapView;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -456,5 +465,208 @@ public class SpotifyManager {
         } catch (Exception exception) {
             LoggerUtils.error("Error shutting down HTTP client: " + exception.getMessage());
         }
+    }
+
+    public CompletableFuture<Boolean> createCoverMap(@NotNull Player player, @NotNull String trackId, @NotNull ItemStack mapItem) {
+        SpotifyUser user = connectedUsers.get(player.getUniqueId());
+        if (user == null) return CompletableFuture.completedFuture(false);
+
+        return getTrackInfo(user.accessToken(), trackId)
+                .thenCompose(trackInfo -> {
+                    if (trackInfo != null && trackInfo.has("album")) {
+                        JsonObject album = trackInfo.getAsJsonObject("album");
+                        if (album.has("images") && !album.getAsJsonArray("images").isEmpty()) {
+                            JsonObject largestImage = album.getAsJsonArray("images").get(0).getAsJsonObject();
+                            String imageUrl = largestImage.get("url").getAsString();
+
+                            return downloadAndCreateMap(player, imageUrl, mapItem);
+                        }
+                    }
+                    return CompletableFuture.completedFuture(false);
+                });
+    }
+
+    @NotNull
+    @Contract("_, _, _ -> new")
+    private CompletableFuture<Boolean> downloadAndCreateMap(@NotNull Player player, @NotNull String imageUrl, @NotNull ItemStack mapItem) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                HttpGet get = new HttpGet(imageUrl);
+                try (CloseableHttpResponse response = httpClient.execute(get)) {
+                    if (response.getStatusLine().getStatusCode() == 200) {
+                        InputStream inputStream = response.getEntity().getContent();
+                        BufferedImage originalImage = ImageIO.read(inputStream);
+
+                        if (originalImage != null) {
+                            BufferedImage resizedImage = resizeImage(originalImage);
+
+                            CompletableFuture<Boolean> mapCreation = new CompletableFuture<>();
+                            plugin.getScheduler().runTask(() -> {
+                                try {
+                                    createMapFromImage(player, resizedImage, mapItem);
+                                    mapCreation.complete(true);
+                                } catch (Exception exception) {
+                                    LoggerUtils.error("Error creating map: " + exception.getMessage());
+                                    mapCreation.complete(false);
+                                }
+                            });
+
+                            return mapCreation.get();
+                        }
+                    }
+                }
+            } catch (Exception exception) {
+                LoggerUtils.error("Error downloading and creating map: " + exception.getMessage());
+            }
+            return false;
+        });
+    }
+
+    private void createMapFromImage(@NotNull Player player,
+                                    @NotNull BufferedImage image,
+                                    @NotNull ItemStack mapItem) {
+        try {
+            MapView mapView;
+
+            if (mapItem.getType() == Material.FILLED_MAP || mapItem.getType() == Material.MAP) {
+                mapView = plugin.getServer().createMap(player.getWorld());
+
+                ItemMeta meta = mapItem.getItemMeta();
+                if (meta instanceof MapMeta mapMeta) {
+                    mapMeta.setMapView(mapView);
+                    mapItem.setItemMeta(mapMeta);
+                }
+            } else {
+                throw new IllegalArgumentException("Item must be a MAP or FILLED_MAP");
+            }
+
+            mapView.getRenderers().clear();
+
+            SpotifyCoverMapRenderer renderer = new SpotifyCoverMapRenderer(image);
+            mapView.addRenderer(renderer);
+        } catch (Exception exception) {
+            LoggerUtils.error("Error creating map from image: " + exception.getMessage());
+            throw exception;
+        }
+    }
+
+    @NotNull
+    private BufferedImage resizeImage(@NotNull BufferedImage originalImage) {
+        BufferedImage resizedImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = resizedImage.createGraphics();
+
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g2d.drawImage(originalImage, 0, 0, 128, 128, null);
+        g2d.dispose();
+
+        return resizedImage;
+    }
+
+    @NotNull
+    @Contract("_, _ -> new")
+    private CompletableFuture<JsonObject> getTrackInfo(@NotNull String accessToken, @NotNull String trackId) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                HttpGet get = new HttpGet("https://api.spotify.com/v1/tracks/" + trackId);
+                get.setHeader("Authorization", "Bearer " + accessToken);
+
+                try (CloseableHttpResponse response = httpClient.execute(get)) {
+                    if (response.getStatusLine().getStatusCode() == 200) {
+                        String responseBody = EntityUtils.toString(response.getEntity());
+                        return gson.fromJson(responseBody, JsonObject.class);
+                    }
+                }
+            } catch (Exception exception) {
+                LoggerUtils.error("Error getting track info: " + exception.getMessage());
+            }
+            return null;
+        });
+    }
+
+    public CompletableFuture<Boolean> createCodeMap(@NotNull Player player, @NotNull String trackId, @NotNull ItemStack mapItem) {
+        SpotifyUser user = connectedUsers.get(player.getUniqueId());
+        if (user == null) return CompletableFuture.completedFuture(false);
+
+        return getTrackInfo(user.accessToken(), trackId)
+                .thenCompose(trackInfo -> {
+                    if (trackInfo != null) {
+                        String spotifyUri = "spotify:track:" + trackId;
+                        return downloadAndCreateCodeMap(player, spotifyUri, mapItem);
+                    }
+                    return CompletableFuture.completedFuture(false);
+                });
+    }
+
+    @NotNull
+    @Contract("_, _, _ -> new")
+    private CompletableFuture<Boolean> downloadAndCreateCodeMap(@NotNull Player player, @NotNull String spotifyUri, @NotNull ItemStack mapItem) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String codeUrl = "https://scannables.scdn.co/uri/plain/jpeg/000000/white/640/" +
+                        URLEncoder.encode(spotifyUri, StandardCharsets.UTF_8);
+
+                HttpGet get = new HttpGet(codeUrl);
+                try (CloseableHttpResponse response = httpClient.execute(get)) {
+                    if (response.getStatusLine().getStatusCode() == 200) {
+                        InputStream inputStream = response.getEntity().getContent();
+                        BufferedImage originalImage = ImageIO.read(inputStream);
+
+                        if (originalImage != null) {
+                            BufferedImage resizedImage = resizeImageForCode(originalImage);
+
+                            CompletableFuture<Boolean> mapCreation = new CompletableFuture<>();
+                            plugin.getScheduler().runTask(() -> {
+                                try {
+                                    createMapFromImage(player, resizedImage, mapItem);
+                                    mapCreation.complete(true);
+                                } catch (Exception exception) {
+                                    LoggerUtils.error("Error creating code map: " + exception.getMessage());
+                                    mapCreation.complete(false);
+                                }
+                            });
+
+                            return mapCreation.get();
+                        }
+                    }
+                }
+            } catch (Exception exception) {
+                LoggerUtils.error("Error downloading and creating code map: " + exception.getMessage());
+            }
+            return false;
+        });
+    }
+
+    @NotNull
+    private BufferedImage resizeImageForCode(@NotNull BufferedImage originalImage) {
+        BufferedImage resizedImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = resizedImage.createGraphics();
+
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, 128, 128);
+
+        int originalWidth = originalImage.getWidth();
+        int originalHeight = originalImage.getHeight();
+
+        double scaleX = 128.0 / originalWidth;
+        double scaleY = 128.0 / originalHeight;
+        double scale = Math.min(scaleX, scaleY);
+
+        int scaledWidth = (int) (originalWidth * scale);
+        int scaledHeight = (int) (originalHeight * scale);
+
+        int x = (128 - scaledWidth) / 2;
+        int y = (128 - scaledHeight) / 2;
+
+        g2d.drawImage(originalImage, x, y, scaledWidth, scaledHeight, null);
+        g2d.dispose();
+
+        return resizedImage;
     }
 }

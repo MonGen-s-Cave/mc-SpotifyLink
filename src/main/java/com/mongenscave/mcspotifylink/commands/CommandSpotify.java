@@ -7,11 +7,14 @@ import com.mongenscave.mcspotifylink.identifiers.keys.MessageKeys;
 import com.mongenscave.mcspotifylink.manager.SpotifyManager;
 import com.mongenscave.mcspotifylink.model.CurrentTrack;
 import com.mongenscave.mcspotifylink.processor.MessageProcessor;
+import com.mongenscave.mcspotifylink.utils.LinkUtils;
 import com.mongenscave.mcspotifylink.utils.LoggerUtils;
 import net.coma112.easiermessages.EasierMessages;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.annotation.CommandPlaceholder;
 import revxrsal.commands.annotation.Subcommand;
@@ -142,6 +145,81 @@ public class CommandSpotify implements OrphanCommand {
 
             player.sendMessage(component);
         }
+    }
+
+    @Subcommand("cover")
+    @CommandPermission("spotifylink.cover")
+    public void cover(@NotNull Player player, @NotNull String spotifyUrl) {
+        if (!plugin.getSpotifyManager().isConnected(player)) {
+            player.sendMessage(MessageKeys.NOT_CONNECTED.getMessage());
+            return;
+        }
+
+        if (!LinkUtils.isValidSpotifyTrackUrl(spotifyUrl)) {
+            player.sendMessage(MessageKeys.INVALID_URL.getMessage());
+            return;
+        }
+
+        String trackId = LinkUtils.extractTrackIdFromUrl(spotifyUrl);
+        if (trackId == null) {
+            player.sendMessage(MessageKeys.FAILED_COVER.getMessage());
+            return;
+        }
+
+        if (player.getInventory().firstEmpty() == -1) {
+            player.sendMessage(MessageKeys.NOT_ENOUGH_SPACE.getMessage());
+            return;
+        }
+
+        ItemStack mapItem = new ItemStack(Material.FILLED_MAP);
+
+        plugin.getSpotifyManager().createCoverMap(player, trackId, mapItem)
+                .thenAccept(success -> {
+                    if (success) player.getInventory().addItem(mapItem);
+                    else player.sendMessage(MessageKeys.FAILED_COVER.getMessage());
+                })
+                .exceptionally(exception -> {
+                    LoggerUtils.error("Error creating cover map: " + exception.getMessage());
+                    return null;
+                });
+    }
+
+    @Subcommand("code")
+    @CommandPermission("spotifylink.code")
+    public void code(@NotNull Player player, @NotNull String spotifyUrl) {
+        if (!plugin.getSpotifyManager().isConnected(player)) {
+            player.sendMessage(MessageKeys.NOT_CONNECTED.getMessage());
+            return;
+        }
+
+        if (!LinkUtils.isValidSpotifyTrackUrl(spotifyUrl)) {
+            player.sendMessage(MessageKeys.INVALID_URL.getMessage());
+            return;
+        }
+
+        String trackId = LinkUtils.extractTrackIdFromUrl(spotifyUrl);
+        if (trackId == null) {
+            player.sendMessage(MessageKeys.FAILED_COVER.getMessage());
+            return;
+        }
+
+        if (player.getInventory().firstEmpty() == -1) {
+            player.sendMessage(MessageKeys.NOT_ENOUGH_SPACE.getMessage());
+            return;
+        }
+
+        ItemStack mapItem = new ItemStack(Material.FILLED_MAP);
+
+        plugin.getSpotifyManager().createCodeMap(player, trackId, mapItem)
+                .thenAccept(success -> {
+                    if (success) player.getInventory().addItem(mapItem);
+                    else player.sendMessage(MessageKeys.FAILED_COVER.getMessage());
+                })
+                .exceptionally(exception -> {
+                    LoggerUtils.error("Error creating code map: " + exception.getMessage());
+                    player.sendMessage(MessageKeys.FAILED_COVER.getMessage());
+                    return null;
+                });
     }
 
     private void handleControlAction(@NotNull Player player, @NotNull Function<SpotifyManager, CompletableFuture<Void>> action) {
